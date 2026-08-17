@@ -3,63 +3,323 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perguntas Anônimas - Daniel</title>
-  <!-- SDK Oficial do Supabase -->
+  <title>NGL - Perguntas Anônimas</title>
+  <!-- Supabase SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background-color: #0F0F12; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .card { background: #1C1C24; padding: 24px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; border: 1px solid #2A2A35; }
-    h2 { font-size: 20px; margin-bottom: 20px; }
-    textarea { width: 100%; height: 120px; background: #0F0F12; border: 1px solid #2A2A35; border-radius: 12px; color: #fff; padding: 12px; font-size: 16px; resize: none; margin-bottom: 12px; outline: none; }
-    input { width: 100%; background: #0F0F12; border: 1px solid #2A2A35; border-radius: 12px; color: #fff; padding: 12px; font-size: 14px; margin-bottom: 20px; outline: none; }
-    button { width: 100%; background: #FF2A5F; color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(180deg, #E82973 0%, #FF5A36 45%, #FFA337 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 20px;
+      color: #fff;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.28);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      background: #ffffff;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .username {
+      color: #000;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .user-tag {
+      color: #333;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .card-body {
+      padding: 20px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 20px;
+      font-weight: 600;
+      resize: none;
+      padding-bottom: 40px;
+    }
+
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .dice-btn {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .dice-btn:hover {
+      background: #ffffff;
+      transform: scale(1.1) rotate(15deg);
+    }
+
+    .dice-btn:active {
+      transform: scale(0.95);
+    }
+
+    .sender-box {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .sender-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 14px 18px;
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      text-align: center;
+    }
+
+    .sender-input::placeholder {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .badge-qa {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .security-info {
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.85);
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 0 12px;
+      font-weight: 400;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-main {
+      width: 100%;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      padding: 18px;
+      border-radius: 40px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      transition: all 0.2s ease;
+      margin-bottom: 16px;
+    }
+
+    .btn-main:hover {
+      background: #1a1a1a;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-main:active {
+      transform: translateY(0);
+    }
+
+    .btn-main:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .footer-qa {
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <h2>Mande uma pergunta anônima para Daniel</h2>
-    <textarea id="texto" placeholder="Envie-me perguntas anônimas..."></textarea>
-    <input id="arroba" type="text" placeholder="Seu @ do Instagram (Ex: @seuuser)">
-    <button id="btn" onclick="enviar()">Enviar Pergunta</button>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <img src="./perfil.jpg" alt="Profile" class="avatar" id="userAvatar">
+        <div class="user-info">
+          <span class="username" id="displayUsername">@heyfriggi</span>
+          <span class="user-tag">Crisma</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <textarea id="textoPergunta" placeholder="o que vais fazer mais tarde?"></textarea>
+        <!-- Removido o onclick daqui -->
+        <button type="button" class="dice-btn" id="btnSortear" title="Perguntas aleatórias">🎲</button>
+      </div>
+    </div>
+
+    <div class="sender-box">
+      <input type="text" id="arrobaRemetente" class="sender-input" placeholder="Seu @ do Instagram (Anti-Spam)" autoCapitalize="none">
+    </div>
+
+    <div class="badge-qa">
+      🔒 Por que solicitamos seu @?
+    </div>
+
+    <div class="security-info">
+      Para proteger nossa comunidade contra robôs e automações, precisamos confirmar seu perfil do Instagram. Fique tranquilo: sua identidade nunca será exibida para o destinatário e a pergunta permanece 100% anônima.
+    </div>
+
+    <!-- Removido o onclick daqui -->
+    <button type="button" class="btn-main" id="btnEnviar">Enviar!</button>
+
+    <div class="badge-qa footer-qa">
+      🔒 q&a anônimo
+    </div>
   </div>
 
   <script>
-    // Substitua pelos dados do seu projeto no Supabase (Project Settings > API)
-    const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
-    const SUPABASE_ANON_KEY = "SUA_CHAVE_ANON_PUBLIC";
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    document.addEventListener('DOMContentLoaded', () => {
+      // Supabase Instantiation
+      const SUPABASE_URL = "https://lqecdukncstnpwevcgik.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_GZFpehwOVVYH2LDjwcsFbw_pRvfT2oc";
+      
+      const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
-    async function enviar() {
-      const texto = document.getElementById('texto').value.trim();
-      const arroba = document.getElementById('arroba').value.trim();
-      const btn = document.getElementById('btn');
+      // DOM Elements
+      const btnSortear = document.getElementById('btnSortear');
+      const btnEnviar = document.getElementById('btnEnviar');
+      const textoInput = document.getElementById('textoPergunta');
+      const arrobaInput = document.getElementById('arrobaRemetente');
 
-      if (!texto) return alert('Escreva uma pergunta!');
-      if (!arroba || !arroba.startsWith('@')) return alert('Digite seu @ do Instagram (Ex: @usuario)!');
+      const sugestoes = [
+        "o que vais fazer mais tarde?",
+        "qual seu maior segredo?",
+        "se você pudesse viajar hoje, pra onde iria?",
+        "qual seu prato favorito?",
+        "um filme que você nunca se cansa de ver?",
+        "tem algo que você nunca contou pra ninguém?"
+      ];
 
-      btn.disabled = true;
-      btn.innerText = 'Enviando...';
+      // Event Listeners Vanilla
+      btnSortear.addEventListener('click', () => {
+        const index = Math.floor(Math.random() * sugestoes.length);
+        if (textoInput) {
+          textoInput.value = sugestoes[index];
+          textoInput.focus();
+        }
+      });
 
-      const { error } = await supabase
-        .from('perguntas')
-        .insert([{ texto: texto, arroba: arroba }]);
+      btnEnviar.addEventListener('click', async () => {
+        const texto = textoInput.value.trim();
+        let arroba = arrobaInput.value.trim();
 
-      if (error) {
-        console.error(error);
-        alert('Erro ao enviar pergunta.');
-      } else {
-        alert('Pergunta enviada com sucesso!');
-        document.getElementById('texto').value = '';
-        document.getElementById('arroba').value = '';
-      }
+        if (!texto) {
+          alert('Escreva uma pergunta antes de enviar!');
+          return;
+        }
 
-      btn.disabled = false;
-      btn.innerText = 'Enviar Pergunta';
-    }
+        if (!arroba) {
+          alert('Por favor, informe seu @ do Instagram para evitar spam.');
+          return;
+        }
+
+        if (!arroba.startsWith('@')) {
+          arroba = '@' + arroba;
+        }
+
+        btnEnviar.disabled = true;
+        btnEnviar.innerText = 'Enviando...';
+
+        try {
+          if (!supabase) throw new Error('Cliente do Supabase não inicializado.');
+
+          const { error } = await supabase
+            .from('perguntas')
+            .insert([{ texto: texto, arroba: arroba }]);
+
+          if (error) throw error;
+
+          alert('Pergunta enviada com sucesso!');
+          textoInput.value = '';
+          arrobaInput.value = '';
+        } catch (error) {
+          console.error('Erro de envio:', error);
+          alert('Ocorreu um erro ao enviar. Tente novamente.');
+        } finally {
+          btnEnviar.disabled = false;
+          btnEnviar.innerText = 'Enviar!';
+        }
+      });
+    });
   </script>
 </body>
 </html>
